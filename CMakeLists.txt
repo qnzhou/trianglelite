@@ -19,6 +19,7 @@ option(TRIANGLELITE_UNIT_TESTS "Build unit tests" OFF)
 include(FetchContent)
 include(cmake/Eigen3.cmake)
 include(cmake/triangle.cmake)
+include(cmake/sanitizer-cmake.cmake)
 
 file(GLOB INC_FILES "${PROJECT_SOURCE_DIR}/include/trianglelite/*.h")
 file(GLOB SRC_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
@@ -43,3 +44,15 @@ if (TRIANGLELITE_UNIT_TESTS)
     #target_compile_definitions(trianglelite_test PRIVATE -DCATCH_CONFIG_ENABLE_BENCHMARKING)
     catch_discover_tests(trianglelite_test)
 endif()
+
+if (SANITIZE_ADDRESS OR
+        SANITIZE_LINK_STATIC OR
+        SANITIZE_MEMORY OR
+        SANITIZE_THREAD OR
+        SANITIZE_UNDEFINED)
+    add_sanitizers(trianglelite)
+    if (TRIANGLELITE_UNIT_TESTS)
+        add_sanitizers(trianglelite_test)
+    endif()
+endif()
+

@@ -224,6 +224,37 @@ void Engine::set_in_areas(const Scalar* areas, Index num_areas)
     m_in->trianglearealist = const_cast<Scalar*>(areas);
 }
 
+Matrix1FMap Engine::get_in_areas()
+{
+    return Matrix1FMap(m_in->trianglearealist, m_in->numberoftriangles);
+}
+
+void Engine::set_in_point_markers(const int* markers, Index num_markers)
+{
+    if (m_in->numberofpoints != 0) {
+        assert(num_markers == m_in->numberofpoints);
+    }
+    m_in->pointmarkerlist = const_cast<int*>(markers);
+}
+
+Matrix1IMap Engine::get_in_point_markers()
+{
+    return Matrix1IMap(m_in->pointmarkerlist, m_in->numberofpoints);
+}
+
+void Engine::set_in_segment_markers(const int* markers, Index num_markers)
+{
+    if (m_in->numberofsegments != 0) {
+        assert(num_markers == m_in->numberofsegments);
+    }
+    m_in->segmentmarkerlist = const_cast<int*>(markers);
+}
+
+Matrix1IMap Engine::get_in_segment_markers()
+{
+    return Matrix1IMap(m_in->segmentmarkerlist, m_in->numberofsegments);
+}
+
 const Matrix2FrMap Engine::get_out_points() const
 {
     return Matrix2FrMap(m_out->pointlist, m_out->numberofpoints, 2);
@@ -249,22 +280,28 @@ const Matrix3IrMap Engine::get_out_triangle_neighbors() const
     return Matrix3IrMap(m_out->neighborlist, m_out->numberoftriangles, 3);
 }
 
-const Matrix1IMap Engine::get_out_parent_segments() const
+const Matrix1IMap Engine::get_out_point_markers() const
 {
-    return Matrix1IMap(m_out->edgemarkerlist, m_out->numberofedges, 1);
+    return Matrix1IMap(m_out->pointmarkerlist, m_out->numberofpoints);
+}
+
+const Matrix1IMap Engine::get_out_segment_markers() const
+{
+    return Matrix1IMap(m_out->segmentmarkerlist, m_out->numberofsegments);
+}
+
+const Matrix1IMap Engine::get_out_edge_markers() const
+{
+    return Matrix1IMap(m_out->edgemarkerlist, m_out->numberofedges);
 }
 
 void Engine::run(const Config& config)
 {
+    // Cleanup to ensure repeated call does not leak memory.
+    clear_triangulateio(*m_out);
+    clear_triangulateio(*m_vorout);
+
     const auto opt = generate_command_line_options(*m_in, config);
-
-    // Set segment marker;
-    std::vector<int> segment_markers(m_in->numberofsegments);
-    std::iota(segment_markers.begin(), segment_markers.end(), 0);
-    m_in->segmentmarkerlist = segment_markers.data();
-
     triangulate(const_cast<char*>(opt.c_str()), m_in.get(), m_out.get(), m_vorout.get());
-
-    m_in->segmentmarkerlist = nullptr;
 }
 

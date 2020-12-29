@@ -60,7 +60,19 @@ public:
      * Set triangle area constraints.  One area per triangle.
      */
     void set_in_areas(const Scalar* areas, Index num_areas);
-    Matrix1FrMap get_in_areas();
+    Matrix1FMap get_in_areas();
+
+    /**
+     * Set point markers.  Only positive values are supported.
+     */
+    void set_in_point_markers(const int* markers, Index num_markers);
+    Matrix1IMap get_in_point_markers();
+
+    /**
+     * Set segment markers.  Only positive values are supported.
+     */
+    void set_in_segment_markers(const int* markers, Index num_markers);
+    Matrix1IMap get_in_segment_markers();
 
 public:
     //================== Output Geometry ========================
@@ -74,7 +86,11 @@ public:
 
     const Matrix3IrMap get_out_triangle_neighbors() const;
 
-    const Matrix1IMap get_out_parent_segments() const;
+    const Matrix1IMap get_out_point_markers() const;
+
+    const Matrix1IMap get_out_segment_markers() const;
+
+    const Matrix1IMap get_out_edge_markers() const;
 
 public:
     void run(const Config& config);
