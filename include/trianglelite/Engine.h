@@ -110,7 +110,7 @@ private:
      * Warning: This method only works if the input segments forms closed and
      * correctly oriented loops.
      */
-    Matrix2Fr run_auto_hole_detection();
+    std::vector<Scalar> run_auto_hole_detection();
 
 private:
     std::unique_ptr<triangulateio> m_in;

@@ -392,10 +392,10 @@ const Matrix1IMap Engine::get_out_edge_markers() const
 
 void Engine::run(const Config& config)
 {
-    Matrix2Fr holes;
+    std::vector<Scalar> holes;
     if (config.auto_hole_detection) {
         holes = run_auto_hole_detection();
-        set_in_holes(holes.data(), holes.rows());
+        set_in_holes(holes.data(), holes.size() / 2);
     }
 
     // Cleanup to ensure repeated call does not leak memory.
@@ -410,7 +410,7 @@ void Engine::run(const Config& config)
     }
 }
 
-Matrix2Fr Engine::run_auto_hole_detection()
+std::vector<Scalar> Engine::run_auto_hole_detection()
 {
     using Point = Eigen::Matrix<Scalar, 2, 1>;
 
@@ -532,8 +532,8 @@ Matrix2Fr Engine::run_auto_hole_detection()
 
     // Extract hole points from regions.
     const int num_regions = static_cast<int>(regions.size());
-    Matrix2Fr holes(num_regions, 2);
-    int count = 0;
+    std::vector<Scalar> holes;
+    holes.reserve(num_regions * 2);
     Point v0, v1, v2, center;
     for (int i = 0; i < num_regions; i++) {
         Scalar max_area = 0;
@@ -551,12 +551,11 @@ Matrix2Fr Engine::run_auto_hole_detection()
 
         const auto winding_number = compute_winding_number(center);
         if (winding_number < 0.5f) {
-            holes.row(count) = center.transpose();
-            count++;
+            holes.push_back(center[0]);
+            holes.push_back(center[1]);
         }
     }
 
-    holes.conservativeResize(count, 2);
     return holes;
 }
 
