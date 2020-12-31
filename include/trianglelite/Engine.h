@@ -26,6 +26,7 @@ public:
      */
     void set_in_points(const Scalar* points, Index num_points);
     Matrix2FrMap get_in_points();
+    void unset_in_points();
 
     /**
      * Add segment constraints.  It is equivalent to passing a PSLG as
@@ -35,6 +36,7 @@ public:
      */
     void set_in_segments(const Index* segments, Index num_segments);
     Matrix2IrMap get_in_segments();
+    void unset_in_segments();
 
     /**
      * Add existing triangulation of the point cloud.  Used for refining an
@@ -46,6 +48,7 @@ public:
      */
     void set_in_triangles(const Index* triangles, Index num_triangles);
     Matrix3IrMap get_in_triangles();
+    void unset_in_triangles();
 
     /**
      * Set hole points.  Used by triangle to flood and remove faces
@@ -55,24 +58,28 @@ public:
      */
     void set_in_holes(const Scalar* holes, Index num_holes);
     Matrix2FrMap get_in_holes();
+    void unset_in_holes();
 
     /**
      * Set triangle area constraints.  One area per triangle.
      */
     void set_in_areas(const Scalar* areas, Index num_areas);
     Matrix1FMap get_in_areas();
+    void unset_in_areas();
 
     /**
      * Set point markers.  Only positive values are supported.
      */
     void set_in_point_markers(const int* markers, Index num_markers);
     Matrix1IMap get_in_point_markers();
+    void unset_in_point_markers();
 
     /**
      * Set segment markers.  Only positive values are supported.
      */
     void set_in_segment_markers(const int* markers, Index num_markers);
     Matrix1IMap get_in_segment_markers();
+    void unset_in_segment_markers();
 
 public:
     //================== Output Geometry ========================
@@ -94,6 +101,16 @@ public:
 
 public:
     void run(const Config& config);
+
+private:
+    /**
+     * Automatically generated a list of hole points based on winding number.
+     * This method assumes `m_in` is setup correctly.
+     *
+     * Warning: This method only works if the input segments forms closed and
+     * correctly oriented loops.
+     */
+    Matrix2Fr run_auto_hole_detection();
 
 private:
     std::unique_ptr<triangulateio> m_in;

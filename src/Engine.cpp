@@ -1,8 +1,10 @@
 #include <trianglelite/Engine.h>
 
+#include <array>
 #include <exception>
 #include <iostream>
 #include <numeric>
+#include <set>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -28,28 +30,81 @@ namespace {
 void clear_triangulateio(triangulateio& io)
 {
     // Points.
-    if (io.pointlist != nullptr) delete[] io.pointlist;
-    if (io.pointmarkerlist != nullptr) delete[] io.pointmarkerlist;
-    if (io.pointattributelist != nullptr) delete[] io.pointattributelist;
+    if (io.pointlist != nullptr) {
+        delete[] io.pointlist;
+        io.pointlist = nullptr;
+    }
+    if (io.pointmarkerlist != nullptr) {
+        delete[] io.pointmarkerlist;
+        io.pointmarkerlist = nullptr;
+    }
+    if (io.pointattributelist != nullptr) {
+        delete[] io.pointattributelist;
+        io.pointattributelist = nullptr;
+    }
+    io.numberofpoints = 0;
+    io.numberofpointattributes = 0;
 
     // Triangles.
-    if (io.trianglelist != nullptr) delete[] io.trianglelist;
-    if (io.trianglearealist != nullptr) delete[] io.trianglearealist;
-    if (io.triangleattributelist != nullptr) delete[] io.triangleattributelist;
-    if (io.neighborlist != nullptr) delete[] io.neighborlist;
+    if (io.trianglelist != nullptr) {
+        delete[] io.trianglelist;
+        io.trianglelist = nullptr;
+    }
+    if (io.trianglearealist != nullptr) {
+        delete[] io.trianglearealist;
+        io.trianglearealist = nullptr;
+    }
+    if (io.triangleattributelist != nullptr) {
+        delete[] io.triangleattributelist;
+        io.triangleattributelist = nullptr;
+    }
+    if (io.neighborlist != nullptr) {
+        delete[] io.neighborlist;
+        io.neighborlist = nullptr;
+    }
+    io.numberoftriangles = 0;
+    io.numberoftriangleattributes = 0;
+    io.numberofcorners = 0;
 
     // Segments.
-    if (io.segmentlist != nullptr) delete[] io.segmentlist;
-    if (io.segmentmarkerlist != nullptr) delete[] io.segmentmarkerlist;
+    if (io.segmentlist != nullptr) {
+        delete[] io.segmentlist;
+        io.segmentlist = nullptr;
+    }
+    if (io.segmentmarkerlist != nullptr) {
+        delete[] io.segmentmarkerlist;
+        io.segmentmarkerlist = nullptr;
+    }
+    io.numberofsegments = 0;
 
     // Edges.
-    if (io.edgelist != nullptr) delete[] io.edgelist;
-    if (io.edgemarkerlist != nullptr) delete[] io.edgemarkerlist;
+    if (io.edgelist != nullptr) {
+        delete[] io.edgelist;
+        io.edgelist = nullptr;
+    }
+    if (io.edgemarkerlist != nullptr) {
+        delete[] io.edgemarkerlist;
+        io.edgemarkerlist = nullptr;
+    }
+    io.numberofedges = 0;
 
     // Misc.
-    if (io.holelist != nullptr) delete[] io.holelist;
-    if (io.regionlist != nullptr) delete[] io.regionlist;
-    if (io.normlist != nullptr) delete[] io.normlist;
+    // Note that holes and regions in the output are mirrored from the input.
+    // No memory to de-allocate.
+    // if (io.holelist != nullptr) {
+    //    delete[] io.holelist;
+    //    io.holelist = nullptr;
+    //}
+    // io.numberofholes = 0;
+    // if (io.regionlist != nullptr) {
+    //    delete[] io.regionlist;
+    //    io.regionlist = nullptr;
+    //}
+    // io.numberofregions = 0;
+    if (io.normlist != nullptr) {
+        delete[] io.normlist;
+        io.normlist = nullptr;
+    }
 }
 
 void initialize_triangulateio(triangulateio& io)
@@ -182,6 +237,12 @@ Matrix2FrMap Engine::get_in_points()
     return Matrix2FrMap(m_in->pointlist, m_in->numberofpoints, 2);
 }
 
+void Engine::unset_in_points()
+{
+    m_in->numberofpoints = 0;
+    m_in->pointlist = nullptr;
+}
+
 void Engine::set_in_segments(const Index* segments, Index num_segments)
 {
     m_in->numberofsegments = num_segments;
@@ -191,6 +252,12 @@ void Engine::set_in_segments(const Index* segments, Index num_segments)
 Matrix2IrMap Engine::get_in_segments()
 {
     return Matrix2IrMap(m_in->segmentlist, m_in->numberofsegments, 2);
+}
+
+void Engine::unset_in_segments()
+{
+    m_in->numberofsegments = 0;
+    m_in->segmentlist = nullptr;
 }
 
 void Engine::set_in_triangles(const Index* triangles, Index num_triangles)
@@ -205,6 +272,13 @@ Matrix3IrMap Engine::get_in_triangles()
     return Matrix3IrMap(m_in->trianglelist, m_in->numberoftriangles, 3);
 }
 
+void Engine::unset_in_triangles()
+{
+    m_in->numberoftriangles = 0;
+    m_in->trianglelist = nullptr;
+    m_in->numberofcorners = 0;
+}
+
 void Engine::set_in_holes(const Scalar* holes, Index num_holes)
 {
     m_in->numberofholes = num_holes;
@@ -214,6 +288,12 @@ void Engine::set_in_holes(const Scalar* holes, Index num_holes)
 Matrix2FrMap Engine::get_in_holes()
 {
     return Matrix2FrMap(m_in->holelist, m_in->numberofholes, 2);
+}
+
+void Engine::unset_in_holes()
+{
+    m_in->numberofholes = 0;
+    m_in->holelist = nullptr;
 }
 
 void Engine::set_in_areas(const Scalar* areas, Index num_areas)
@@ -229,6 +309,11 @@ Matrix1FMap Engine::get_in_areas()
     return Matrix1FMap(m_in->trianglearealist, m_in->numberoftriangles);
 }
 
+void Engine::unset_in_areas()
+{
+    m_in->trianglearealist = nullptr;
+}
+
 void Engine::set_in_point_markers(const int* markers, Index num_markers)
 {
     if (m_in->numberofpoints != 0) {
@@ -242,6 +327,11 @@ Matrix1IMap Engine::get_in_point_markers()
     return Matrix1IMap(m_in->pointmarkerlist, m_in->numberofpoints);
 }
 
+void Engine::unset_in_point_markers()
+{
+    m_in->pointmarkerlist = nullptr;
+}
+
 void Engine::set_in_segment_markers(const int* markers, Index num_markers)
 {
     if (m_in->numberofsegments != 0) {
@@ -253,6 +343,11 @@ void Engine::set_in_segment_markers(const int* markers, Index num_markers)
 Matrix1IMap Engine::get_in_segment_markers()
 {
     return Matrix1IMap(m_in->segmentmarkerlist, m_in->numberofsegments);
+}
+
+void Engine::unset_in_segment_markers()
+{
+    m_in->segmentmarkerlist = nullptr;
 }
 
 const Matrix2FrMap Engine::get_out_points() const
@@ -297,11 +392,171 @@ const Matrix1IMap Engine::get_out_edge_markers() const
 
 void Engine::run(const Config& config)
 {
+    Matrix2Fr holes;
+    if (config.auto_hole_detection) {
+        holes = run_auto_hole_detection();
+        set_in_holes(holes.data(), holes.rows());
+    }
+
     // Cleanup to ensure repeated call does not leak memory.
     clear_triangulateio(*m_out);
     clear_triangulateio(*m_vorout);
 
     const auto opt = generate_command_line_options(*m_in, config);
     triangulate(const_cast<char*>(opt.c_str()), m_in.get(), m_out.get(), m_vorout.get());
+
+    if (config.auto_hole_detection) {
+        unset_in_holes();
+    }
+}
+
+Matrix2Fr Engine::run_auto_hole_detection()
+{
+    using Point = Eigen::Matrix<Scalar, 2, 1>;
+
+    // Constrained Delaunay and preserving segments.
+    Config config;
+    config.split_boundary = false;
+    config.convex_hull = true;
+    config.auto_hole_detection = false; // To avoid recursion.
+    config.verbose_level = 0;
+
+    std::vector<int> seg_markers(m_in->numberofsegments, 1);
+    set_in_segment_markers(seg_markers.data(), m_in->numberofsegments);
+    run(config);
+    unset_in_segment_markers();
+
+    // Extract result.
+    auto points = get_out_points();
+    auto triangles = get_out_triangles();
+    auto edges = get_out_edges();
+    auto edge_markers = get_out_edge_markers();
+    auto neighbors = get_out_triangle_neighbors();
+
+    // Initialize states.
+    const int num_triangles = static_cast<int>(triangles.rows());
+    std::vector<std::vector<int>> regions;
+    regions.reserve(num_triangles / 2);
+    std::vector<bool> visited(num_triangles, false);
+
+    // Initialize seg_edge_set to check if an edge comes from an input segment.
+    const int num_edges = static_cast<int>(edges.rows());
+    std::set<std::array<int, 2>> seg_edge_set;
+    assert(edge_markers.size() == num_edges);
+    for (int i = 0; i < num_edges; i++) {
+        if (edge_markers[i] != 0) {
+            // This edge maps to an input boundary.
+            if (edges(i, 0) < edges(i, 1)) {
+                seg_edge_set.insert({edges(i, 0), edges(i, 1)});
+            } else {
+                seg_edge_set.insert({edges(i, 1), edges(i, 0)});
+            }
+        }
+    }
+
+    // Extract the shared edge between 2 triangles.
+    auto shared_edge = [&](int ti, int tj) -> std::array<int, 2> {
+        for (int i = 0; i < 3; i++) {
+            bool found = true;
+            for (int j = 0; j < 3; j++) {
+                if (triangles(ti, i) == triangles(tj, j)) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) {
+                int v0 = triangles(ti, (i + 1) % 3);
+                int v1 = triangles(ti, (i + 2) % 3);
+                if (v0 < v1) {
+                    return {v0, v1};
+                } else {
+                    return {v1, v0};
+                }
+            }
+        }
+        throw std::runtime_error("Triangles are not adjcent!");
+    };
+
+    // Flood fill from a seed triangle.
+    std::function<void(int, std::vector<int>&)> flood_region;
+    flood_region = [&](int seed_tri, std::vector<int>& region) {
+        region.push_back(seed_tri);
+        visited[seed_tri] = true;
+
+        for (int i = 0; i < 3; i++) {
+            const auto t = neighbors(seed_tri, i);
+            if (t < 0) continue; // No neighbor, boundary triangle.
+            if (visited[t]) continue;
+
+            const auto e = shared_edge(seed_tri, t);
+            if (seg_edge_set.find(e) == seg_edge_set.end()) {
+                flood_region(t, region);
+            }
+        }
+    };
+
+    // Clsoed form of 2D signed triangle area (x2) from vertex coordinates.
+    auto compute_area = [](const Point& v0, const Point& v1, const Point& v2) {
+        return v2[1] * v1[0] + v1[1] * v0[0] + v0[1] * v2[0] - v2[0] * v1[1] - v1[0] * v0[1] -
+               v0[0] * v2[1];
+    };
+
+    // Compute signed angle formed by triangle (v0, v1, v2) at v0.
+    auto compute_angle = [&](const Point& v0, const Point& v1, const Point& v2) {
+        return std::atan2(compute_area(v0, v1, v2), (v1 - v0).dot(v2 - v0));
+    };
+
+    // Compute winding number of a point with respect to the input segments.
+    auto compute_winding_number = [&](const Point& p) {
+        const auto in_points = get_in_points();
+        const auto in_segments = get_in_segments();
+        const int num_in_segments = static_cast<int>(in_segments.rows());
+        Scalar theta = 0;
+        for (int i = 0; i < num_in_segments; i++) {
+            const Point v0 = in_points.row(in_segments(i, 0));
+            const Point v1 = in_points.row(in_segments(i, 1));
+            theta += compute_angle(p, v0, v1);
+        }
+
+        return theta / (2 * M_PI);
+    };
+
+    // Compute regions by flood fill.
+    for (int i = 0; i < num_triangles; i++) {
+        if (visited[i]) continue;
+
+        regions.emplace_back();
+        regions.back().reserve(num_triangles);
+        flood_region(i, regions.back());
+    }
+
+    // Extract hole points from regions.
+    const int num_regions = static_cast<int>(regions.size());
+    Matrix2Fr holes(num_regions, 2);
+    int count = 0;
+    Point v0, v1, v2, center;
+    for (int i = 0; i < num_regions; i++) {
+        Scalar max_area = 0;
+        for (auto fid : regions[i]) {
+            v0 = points.row(triangles(fid, 0));
+            v1 = points.row(triangles(fid, 1));
+            v2 = points.row(triangles(fid, 2));
+            const auto area = compute_area(v0, v1, v2);
+
+            if (area > max_area) {
+                max_area = area;
+                center = (v0 + v1 + v2) / 3;
+            }
+        }
+
+        const auto winding_number = compute_winding_number(center);
+        if (winding_number < 0.5f) {
+            holes.row(count) = center.transpose();
+            count++;
+        }
+    }
+
+    holes.conservativeResize(count, 2);
+    return holes;
 }
 
