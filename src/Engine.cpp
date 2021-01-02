@@ -487,9 +487,10 @@ std::vector<Scalar> Engine::run_auto_hole_detection()
     // Constrained Delaunay and preserving segments.
     Config config;
     config.split_boundary = false;
-    config.convex_hull = true;
+    config.convex_hull = false;
     config.auto_hole_detection = false; // To avoid recursion.
     config.verbose_level = 0;
+    config.max_num_steiner = 0;
 
     std::vector<int> seg_markers(m_in->numberofsegments, 1);
     set_in_segment_markers(seg_markers.data(), m_in->numberofsegments);
