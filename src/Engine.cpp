@@ -1,4 +1,7 @@
 #include <trianglelite/Engine.h>
+#ifdef WITH_MSHIO
+#include <MshIO/mshio.h>
+#endif
 
 #include <array>
 #include <exception>
@@ -204,6 +207,73 @@ std::string generate_command_line_options(const triangulateio& io, const Config&
     }
     return opt;
 }
+
+#ifdef WITH_MSHIO
+void debug_save(const std::string& filename,
+    const trianglelite::Engine& engine,
+    const std::vector<int>& region_ids)
+{
+    auto vertices2D = engine.get_out_points();
+    auto points = engine.get_out_points();
+    auto triangles = engine.get_out_triangles();
+
+    const int num_points = static_cast<int>(points.rows());
+    const int num_triangles = static_cast<int>(triangles.rows());
+
+    mshio::MshSpec msh_spec;
+    msh_spec.nodes.num_entity_blocks = 1;
+    msh_spec.nodes.num_nodes = num_points;
+    msh_spec.nodes.min_node_tag = 1;
+    msh_spec.nodes.max_node_tag = num_points;
+    msh_spec.nodes.entity_blocks.emplace_back();
+
+    auto& node_block = msh_spec.nodes.entity_blocks.back();
+    node_block.entity_dim = 2;
+    node_block.entity_tag = 1;
+    node_block.parametric = 0;
+    node_block.num_nodes_in_block = num_points;
+    node_block.tags.resize(num_points);
+    std::iota(node_block.tags.begin(), node_block.tags.end(), 1);
+    node_block.data.resize(num_points * 3);
+    for (int i = 0; i < num_points; i++) {
+        node_block.data[i * 3] = points(i, 0);
+        node_block.data[i * 3 + 1] = points(i, 1);
+        node_block.data[i * 3 + 2] = 0;
+    }
+
+    msh_spec.elements.num_entity_blocks = 1;
+    msh_spec.elements.num_elements = num_triangles;
+    msh_spec.elements.min_element_tag = 1;
+    msh_spec.elements.max_element_tag = num_triangles;
+    msh_spec.elements.entity_blocks.emplace_back();
+
+    auto& element_block = msh_spec.elements.entity_blocks.back();
+    element_block.entity_dim = 2;
+    element_block.entity_tag = 1;
+    element_block.element_type = 2;
+    element_block.num_elements_in_block = num_triangles;
+    element_block.data.resize(num_triangles * 4);
+    for (int i = 0; i < num_triangles; i++) {
+        element_block.data[i * 4] = i + 1;
+        element_block.data[i * 4 + 1] = triangles(i, 0) + 1;
+        element_block.data[i * 4 + 2] = triangles(i, 1) + 1;
+        element_block.data[i * 4 + 3] = triangles(i, 2) + 1;
+    }
+
+    msh_spec.element_data.emplace_back();
+    auto& element_data = msh_spec.element_data.back();
+    element_data.header.string_tags.push_back("region_id");
+    element_data.header.real_tags.push_back(0);
+    element_data.header.int_tags = {0, 1, num_triangles, 0};
+    element_data.entries.resize(num_triangles);
+    for (int i=0; i<num_triangles; i++) {
+        element_data.entries[i].tag = i+1;
+        element_data.entries[i].data.push_back(region_ids[i]);
+    }
+
+    mshio::save_msh(filename, msh_spec);
+};
+#endif
 
 } // namespace
 
@@ -529,6 +599,20 @@ std::vector<Scalar> Engine::run_auto_hole_detection()
         regions.back().reserve(num_triangles);
         flood_region(i, regions.back());
     }
+
+#ifdef WITH_MSHIO
+    {
+        std::vector<int> region_ids(num_triangles, 0);
+        int region_count = 0;
+        for (auto& region : regions) {
+            for (auto fid : region) {
+                region_ids[fid] = region_count + 1;
+            }
+            region_count++;
+        }
+        debug_save("auto_hole_detection_debug.msh", *this, region_ids);
+    }
+#endif
 
     // Extract hole points from regions.
     const int num_regions = static_cast<int>(regions.size());
