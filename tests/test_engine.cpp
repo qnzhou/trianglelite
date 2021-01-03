@@ -22,6 +22,11 @@ TEST_CASE("Point cloud", "[trianglelite]")
         config.max_area = 0.1;
         config.verbose_level = 0;
     }
+    SECTION("With max area too small")
+    {
+        config.max_area = 1e-7;
+        config.verbose_level = 0;
+    }
 
     Eigen::Matrix<Scalar, 3, 2, Eigen::RowMajor> points;
     points << 0.0, 0.0, 1.0, 0.0, 0.0, 1.0;

@@ -171,7 +171,15 @@ std::string generate_command_line_options(const triangulateio& io, const Config&
     }
 
     if (config.max_area > 0) {
-        opt += "a" + std::to_string(config.max_area);
+        if (config.max_area < 1e-6) {
+            std::cerr << "Warning: max area (" << config.max_area
+                      << ") may lose precision because it is too small" << std::endl
+                      << "         Auto-adjusting it to 1e-6" << std::endl;
+            opt += "a0.000001";
+        } else {
+            assert(std::stof(std::to_string(config.max_area)) != 0);
+            opt += "a" + std::to_string(config.max_area);
+        }
     } else if (io.trianglearealist != nullptr) {
         opt += "a";
     }
@@ -266,8 +274,8 @@ void debug_save(const std::string& filename,
     element_data.header.real_tags.push_back(0);
     element_data.header.int_tags = {0, 1, num_triangles, 0};
     element_data.entries.resize(num_triangles);
-    for (int i=0; i<num_triangles; i++) {
-        element_data.entries[i].tag = i+1;
+    for (int i = 0; i < num_triangles; i++) {
+        element_data.entries[i].tag = i + 1;
         element_data.entries[i].data.push_back(region_ids[i]);
     }
 
