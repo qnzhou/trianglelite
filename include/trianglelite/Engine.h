@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 
 #include <memory>
+#include <vector>
 
 #include <trianglelite/Config.h>
 #include <trianglelite/common.h>
