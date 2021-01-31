@@ -151,4 +151,4 @@ engine.set_in_segemnt_markers(segment_markers.data(), segment_markers.size());
 
 
 
-[triangle library]: https://shared-assets.adobe.com/link/fb3b4ede-dc2d-40f6-62de-087aa3943d82
+[triangle library]: https://www.cs.cmu.edu/~quake/triangle.html
