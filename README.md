@@ -44,7 +44,7 @@ make
 
 ## Detailed usage
 
-There are basically 3 steps in using trianglelite: import input, configure, run
+There are basically 4 steps in using TriangleLite: import input, configure, run
 and extract output.
 
 ### Input
@@ -52,7 +52,7 @@ and extract output.
 There are a few ways of using the [triangle library], and they each involve
 slightly different input.  We will illustrate each use case one by one below.
 
-In order to minimize the amount of copying involved, trianglelite assumes the
+In order to minimize the amount of copying involved, TriangleLite assumes the
 user is responsible for managing the input memory.  So its API only takes raw
 pointers and a size parameter for all input data.
 
@@ -86,7 +86,7 @@ engine.set_in_segments(segments.data(), 3);
 Note that while triangle works with unoriented segments, it is actually
 beneficial to use oriented segments (i.e. segments should be oriented
 in a counterclockwise fashion).  Specifically, with oriented segments,
-trianglelite can deduce holes using winding number with its auto hole detection
+TriangleLite can deduce holes using winding number with its auto hole detection
 feature.
 
 #### Import hole list
@@ -163,11 +163,51 @@ list of fields one can configure:
 |          `conforming` | Bool   | Enforce all triangle to be [Delaunay][Delaunay triangulation], not just [constrained Delaunay][Constrained Delaunay triangulation]. Default is false. |
 |               `exact` | Bool   | Use exact arithmetic.  Default is true. |
 |      `split_boundary` | Bool   | Allow mesh boundary to be split.  Default is true. |
-| `auto_hole_detection` | Bool   | Using winding number to automatically detect holes. |
+| `auto_hole_detection` | Bool   | Using winding number to automatically detect holes. Default is false. |
 
+
+### Run
+
+Once all inputs are imported, the next step is to triangulate the domain with
+the specified configuration:
+
+```c++
+engine.run(config);
+```
 
 ### Output
 
+To extract the output triangulation:
+
+```c++
+Eigen::Matrix<Scalar, -1, 2> points = engine.get_out_points();
+Eigen::Matrix<Index, -1, 3> triangles = engine.get_out_triangles();
+```
+
+Note that the above code involves copying the triangulation data.  The return
+types of `get_out_*` methods are `Eigen::Map`, which wraps around a internal
+memory managed by TriangleLite.  For users who are familiar with Eigen, it is
+possible to avoid this copy by working directly with `Eigen::Map` objects while
+keeping the `engine` object alive.
+
+In addition to the basic triangulation, it is also possible to extract output
+edges, segments, triangle connectivity, point/segment markers:
+
+```c++
+Eigen::Matrix<Index, -1, 2> edges = engine.get_out_edges();
+Eigen::Matrix<Index, -1, 2> segments = engine.get_out_segments();
+Eigen::Matrix<Index, -1, 3> tri_neighbors = engine.get_out_triangle_neighbors();
+Eigen::Matrix<Index, -1, 1> point_marker = engine.get_out_point_markers();
+Eigen::Matrix<Index, -1, 1> segment_marker = engine.get_out_segment_markers();
+Eigen::Matrix<Index, -1, 1> edge_marker = engine.get_out_edge_markers();
+```
+
+* Edges are the edges of the triangulation.
+* Segments are a set of edges that maps back to input segments.
+* Triangle neighbors provide information of triangle-triangle connectivity.
+* Point/segment markers are markers that got mapped from the input point/segments.
+* Edge markers are markers that got mapped from the input segments to output
+  edges.
 
 
 [triangle library]: https://www.cs.cmu.edu/~quake/triangle.html
