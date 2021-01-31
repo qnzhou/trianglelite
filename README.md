@@ -160,7 +160,7 @@ list of fields one can configure:
 |       `verbose_level` | Index  | Verbosity level ranges from 0 to 4.  0: quiet, 4: debug only.  Default is 1. |
 |           `algorithm` | Enum   | `DIVIDE_AND_CONQUER` (default), `SWEEP_LINE` or `INCREMENTAL`. |
 |         `convex_hull` | Bool   | Whether to triangulate the entire convex hull.  Default is false. |
-|          `conforming` | Bool   | Enforce all triangle to be Delaunay, not just constrained Delaunay. Default is false. |
+|          `conforming` | Bool   | Enforce all triangle to be [Delaunay][Delaunay triangulation], not just [constrained Delaunay][Constrained Delaunay triangulation]. Default is false. |
 |               `exact` | Bool   | Use exact arithmetic.  Default is true. |
 |      `split_boundary` | Bool   | Allow mesh boundary to be split.  Default is true. |
 | `auto_hole_detection` | Bool   | Using winding number to automatically detect holes. |
@@ -172,3 +172,6 @@ list of fields one can configure:
 
 [triangle library]: https://www.cs.cmu.edu/~quake/triangle.html
 [Steiner points]: https://en.wikipedia.org/wiki/Steiner_point_(computational_geometry)
+[Delaunay triangulation]: https://mathworld.wolfram.com/DelaunayTriangulation.html
+[Constrained Delaunay triangulation]: https://en.wikipedia.org/wiki/Constrained_Delaunay_triangulation
+
