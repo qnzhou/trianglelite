@@ -147,8 +147,28 @@ engine.set_in_segemnt_markers(segment_markers.data(), segment_markers.size());
 
 ### Configure
 
+The [triangle library] uses a set of command line switches to configure
+triangulation parameters.  I find it a bit difficult to memorize, instead,
+TriangleLite uses a `Config` struct to make the code more readable.  Here is a
+list of fields one can configure:
+
+|            Field name |  Type  | Description |
+|----------------------:|--------|-------------|
+|           `min_angle` | Scalar | Controls the triangulation quality.  Default is 20 degree. |
+|            `max_area` | Scalar | Controls the triangulation density.  Default is -1 (i.e. unconstrained). |
+|     `max_num_steiner` | Index  | Number of inserted [Steiner points].  Default is -1 (i.e. unlimited). |
+|       `verbose_level` | Index  | Verbosity level ranges from 0 to 4.  0: quiet, 4: debug only.  Default is 1. |
+|           `algorithm` | Enum   | `DIVIDE_AND_CONQUER` (default), `SWEEP_LINE` or `INCREMENTAL`. |
+|         `convex_hull` | Bool   | Whether to triangulate the entire convex hull.  Default is false. |
+|          `conforming` | Bool   | Enforce all triangle to be Delaunay, not just constrained Delaunay. Default is false. |
+|               `exact` | Bool   | Use exact arithmetic.  Default is true. |
+|      `split_boundary` | Bool   | Allow mesh boundary to be split.  Default is true. |
+| `auto_hole_detection` | Bool   | Using winding number to automatically detect holes. |
+
+
 ### Output
 
 
 
 [triangle library]: https://www.cs.cmu.edu/~quake/triangle.html
+[Steiner points]: https://en.wikipedia.org/wiki/Steiner_point_(computational_geometry)
