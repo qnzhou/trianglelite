@@ -112,10 +112,38 @@ std::vector<Index> triangles {
     0, 1, 2,  // triangle 0
     2, 1, 3   // triangle 1
 };
-engine.set_in_triangles()
+engine.set_in_triangles(triangles.data(), 2)
 ```
 
+#### Import area constraint
 
+For triangle refinement, one can import an area field to control triangle
+density.  To do that:
+
+```c++
+std::vector<Scalar> areas {
+   0.1, 0.2, 0.5, 0.1, ...
+};
+engine.set_in_areas(areas.data(), areas.size());
+```
+
+#### Set point and segment markers
+
+One of the important features of triable is to track the input points and
+segments in the output triangulation.  This is done by setting the input point
+and segment markers:
+
+```c++
+std::vector<int> point_markers {
+    ...
+};
+engine.set_in_point_markers(point_markers.data(), point_markers.size());
+
+std::vector<int> segment_markers {
+    ...
+};
+engine.set_in_segemnt_markers(segment_markers.data(), segment_markers.size());
+```
 
 ### Configure
 
