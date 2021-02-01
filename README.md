@@ -1,6 +1,6 @@
 # TriangleLite
 
-TriangleLite is a lite wrapper of the [triangle library] in C++.  It is created
+TriangleLite is a lite wrapper of the [triangle library] written in C++.  It is created
 by Qingnan Zhou as a coding exercise to make using the triangle library less
 tedious.
 
@@ -33,6 +33,17 @@ Eigen::Matrix<Scalar, -1, 2> out_points = engine.get_out_points();
 Eigen::Matrix<Index, -1, 2> out_triangles = engine.get_out_triangles();
 ```
 
+A few notable things about TriangleLite:
+* All data structure and their member fields are properly initialized.  Users
+  only need to set a few relevant fields.
+* Data can be passed into and out of TriangleLite without any redundant copying
+  or conversion. All inputs are passed to `trianglelite::Engine` in the form of
+  raw C array, and all output can be extracted as `Eigen::Map`.
+* TriangleLite uses more human-readable `Config` object instead of command line
+  switches.
+* TriangleLite comes with support for winding-number-based automatic hole
+  detection (not shown in this example).
+
 ## Build
 
 ```sh
@@ -44,17 +55,17 @@ make
 
 ## Detailed usage
 
-There are basically 4 steps in using TriangleLite: import input, configure, run
-and extract output.
+There are 4 steps involved in using TriangleLite: [import input](#Input),
+[configure](#Configure), [run](#Run)
+and [extract output](#Output).  In the following code snippets, we assume `engine` is of
+type `trianglelite::Engine`.
 
 ### Input
 
-There are a few ways of using the [triangle library], and they each involve
-slightly different input.  We will illustrate each use case one by one below.
-
-In order to minimize the amount of copying involved, TriangleLite assumes the
-user is responsible for managing the input memory.  So its API only takes raw
-pointers and a size parameter for all input data.
+In order to be fully generic, all inputs to TriangleLite are passed in using
+raw C arrays.  TriangleLite does not assume the ownership of these memories,
+and the user is responsible for keeping them valid throughout the lifetime of
+the `engine` object.
 
 #### Import points
 
@@ -84,15 +95,16 @@ engine.set_in_segments(segments.data(), 3);
 ```
 
 Note that while triangle works with unoriented segments, it is actually
-beneficial to use oriented segments (i.e. segments should be oriented
-in a counterclockwise fashion).  Specifically, with oriented segments,
-TriangleLite can deduce holes using winding number with its auto hole detection
-feature.
+beneficial to use oriented segments (i.e. each segments should be oriented
+in a counterclockwise fashion, which has interior on the left hand side).
+With oriented segments, TriangleLite can deduce holes using winding-number-based
+auto hole detection feature.
 
 #### Import hole list
 
 Without using the auto hole detection feature, users must provide a set of hole
-points to indicate hole locations.  To set hole points:
+points to help [triangle][triangle library] to identify holes.  To set these
+hole points:
 
 ```c++
 std::vector<Scalar> holes {
@@ -129,9 +141,9 @@ engine.set_in_areas(areas.data(), areas.size());
 
 #### Set point and segment markers
 
-One of the important features of triable is to track the input points and
-segments in the output triangulation.  This is done by setting the input point
-and segment markers:
+One of the important features of [triangle][triangle library] is to track the
+input points and segments in the output triangulation.  This is done by setting
+the input point and segment markers:
 
 ```c++
 std::vector<int> point_markers {
@@ -148,7 +160,7 @@ engine.set_in_segemnt_markers(segment_markers.data(), segment_markers.size());
 ### Configure
 
 The [triangle library] uses a set of command line switches to configure
-triangulation parameters.  I find it a bit difficult to memorize, instead,
+triangulation parameters.  I find it a bit difficult to memorize. Instead,
 TriangleLite uses a `Config` struct to make the code more readable.  Here is a
 list of fields one can configure:
 
@@ -184,9 +196,9 @@ Eigen::Matrix<Scalar, -1, 2> points = engine.get_out_points();
 Eigen::Matrix<Index, -1, 3> triangles = engine.get_out_triangles();
 ```
 
-Note that the above code involves copying the triangulation data.  The return
-types of `get_out_*` methods are `Eigen::Map`, which wraps around a internal
-memory managed by TriangleLite.  For users who are familiar with Eigen, it is
+Note that the above code _copies_ data out of `engine` object.  The return
+types of `get_out_*` methods are `Eigen::Map`s, which wrap around internal
+memories managed by TriangleLite.  For users who are familiar with Eigen, it is
 possible to avoid this copy by working directly with `Eigen::Map` objects while
 keeping the `engine` object alive.
 
