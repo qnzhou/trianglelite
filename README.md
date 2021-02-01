@@ -221,6 +221,8 @@ Eigen::Matrix<Index, -1, 1> edge_marker = engine.get_out_edge_markers();
 * Edge markers are markers that got mapped from the input segments to output
   edges.
 
+More details about boundary markers can be found [here](https://www.cs.cmu.edu/~quake/triangle.markers.html).
+
 
 [triangle library]: https://www.cs.cmu.edu/~quake/triangle.html
 [Steiner points]: https://en.wikipedia.org/wiki/Steiner_point_(computational_geometry)
