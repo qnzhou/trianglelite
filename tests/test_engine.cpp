@@ -95,3 +95,80 @@ TEST_CASE("QuadWithHole", "[trianglelite][hole]")
     REQUIRE(euler == 0);
 }
 
+TEST_CASE("Marker", "[trianglelite][marker]")
+{
+    using namespace trianglelite;
+
+    Config config;
+    Engine engine;
+
+    std::vector<Scalar> points{0, 0, 1, 0, 0, 1};
+    std::vector<Index> segments{0, 1, 1, 2, 2, 0};
+    std::vector<Index> point_markers{4, 5, 6};
+    std::vector<Index> segment_markers{1, 2, 3};
+    engine.set_in_points(points.data(), points.size() / 2);
+    engine.set_in_segments(segments.data(), segments.size() / 2);
+    engine.set_in_point_markers(point_markers.data(), point_markers.size());
+    engine.set_in_segment_markers(segment_markers.data(), segment_markers.size());
+
+    config.max_area = 0.1;
+    config.verbose_level = 0;
+
+    engine.run(config);
+
+    auto out_points = engine.get_out_points();
+    auto out_edges = engine.get_out_edges();
+    auto out_segments = engine.get_out_segments();
+    auto out_triangles = engine.get_out_triangles();
+
+    REQUIRE(out_points.rows() > 3);
+    REQUIRE(out_edges.rows() > 3);
+    REQUIRE(out_segments.rows() > 3);
+    REQUIRE(out_triangles.rows() > 1);
+
+    SECTION("Point markers") {
+        auto out_point_markers = engine.get_out_point_markers();
+        const size_t num_out_point_markers = out_point_markers.size();
+        REQUIRE(num_out_point_markers == out_points.rows());
+        for (size_t i=0; i<num_out_point_markers; i++) {
+            if (out_point_markers[i] == 4) {
+                REQUIRE(out_points(i, 0) == Approx(0));
+                REQUIRE(out_points(i, 1) == Approx(0));
+            } else if (out_point_markers[i] == 5) {
+                REQUIRE(out_points(i, 0) == Approx(1));
+                REQUIRE(out_points(i, 1) == Approx(0));
+            } else if (out_point_markers[i] == 6) {
+                REQUIRE(out_points(i, 0) == Approx(0));
+                REQUIRE(out_points(i, 1) == Approx(1));
+            }
+        }
+    }
+
+    SECTION("Edge markers") {
+        auto edge_markers = engine.get_out_edge_markers();
+        REQUIRE(edge_markers.size() == out_edges.rows());
+
+        const size_t num_edges = out_edges.rows();
+        for (size_t i=0; i<num_edges; i++) {
+            const Index v0 = out_edges(i, 0);
+            const Index v1 = out_edges(i, 1);
+            if (edge_markers[i] == 1) {
+                REQUIRE(out_points(v0, 1) == Approx(0.0));
+                REQUIRE(out_points(v1, 1) == Approx(0.0));
+            } else if (edge_markers[i] == 2) {
+                REQUIRE(out_points.row(v0).sum() == Approx(1.0));
+                REQUIRE(out_points.row(v1).sum() == Approx(1.0));
+            } else if (edge_markers[i] == 3) {
+                REQUIRE(out_points(v0, 0) == Approx(0.0));
+                REQUIRE(out_points(v1, 0) == Approx(0.0));
+            } else {
+                REQUIRE(edge_markers[i] == 0);
+            }
+        }
+    }
+
+    SECTION("Segment markers") {
+        auto segment_markers = engine.get_out_segment_markers();
+        REQUIRE(out_segments.rows() == segment_markers.size());
+    }
+}
