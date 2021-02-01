@@ -1,6 +1,6 @@
 # TriangleLite
 
-TriangleLite is a lite wrapper of the [triangle library] in C++.  It is created
+TriangleLite is a lite wrapper of the [triangle library] written in C++.  It is created
 by Qingnan Zhou as a coding exercise to make using the triangle library less
 tedious.
 
@@ -33,6 +33,17 @@ Eigen::Matrix<Scalar, -1, 2> out_points = engine.get_out_points();
 Eigen::Matrix<Index, -1, 2> out_triangles = engine.get_out_triangles();
 ```
 
+A few notable things about TriangleLite:
+* All data structure and their member fields are properly initialized.  Users
+  only need to set a few relevant fields.
+* Data can be passed into and out of TriangleLite without any redundant copying
+  or conversion. All inputs are passed to `trianglelite::Engine` in the form of
+  raw C array, and all output can be extracted as `Eigen::Map`.
+* TriangleLite uses more human-readable `Config` object instead of command line
+  switches.
+* TriangleLite comes with support for winding-number-based automatic hole
+  detection (not shown in this example).
+
 ## Build
 
 ```sh
@@ -44,8 +55,10 @@ make
 
 ## Detailed usage
 
-There are basically 4 steps in using TriangleLite: import input, configure, run
-and extract output.
+There are 4 steps involved in using TriangleLite: [import input](#Input),
+[configure](#Configure), [run](#Run)
+and [extract output](#Output).  In the following code snippets, we assume `engine` is of
+type `trianglelite::Engine`.
 
 ### Input
 
