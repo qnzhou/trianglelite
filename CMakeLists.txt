@@ -37,6 +37,9 @@ if (TRIANGLELITE_MSHIO)
     target_compile_definitions(trianglelite PRIVATE -DWITH_MSHIO)
     target_link_libraries(trianglelite PRIVATE MshIO::MshIO)
 endif()
+if (MSVC)
+    target_compile_definitions(trianglelite PRIVATE -D_USE_MATH_DEFINES)
+endif()
 
 add_library(trianglelite::trianglelite ALIAS trianglelite)
 
