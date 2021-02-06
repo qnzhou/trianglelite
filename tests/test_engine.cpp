@@ -106,10 +106,10 @@ TEST_CASE("Marker", "[trianglelite][marker]")
     std::vector<Index> segments{0, 1, 1, 2, 2, 0};
     std::vector<Index> point_markers{4, 5, 6};
     std::vector<Index> segment_markers{1, 2, 3};
-    engine.set_in_points(points.data(), points.size() / 2);
-    engine.set_in_segments(segments.data(), segments.size() / 2);
-    engine.set_in_point_markers(point_markers.data(), point_markers.size());
-    engine.set_in_segment_markers(segment_markers.data(), segment_markers.size());
+    engine.set_in_points(points.data(), static_cast<int>(points.size() / 2));
+    engine.set_in_segments(segments.data(), static_cast<int>(segments.size() / 2));
+    engine.set_in_point_markers(point_markers.data(), static_cast<int>(point_markers.size()));
+    engine.set_in_segment_markers(segment_markers.data(), static_cast<int>(segment_markers.size()));
 
     config.max_area = 0.1;
     config.verbose_level = 0;
