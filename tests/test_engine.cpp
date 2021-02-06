@@ -30,7 +30,7 @@ TEST_CASE("Point cloud", "[trianglelite]")
 
     Eigen::Matrix<Scalar, 3, 2, Eigen::RowMajor> points;
     points << 0.0, 0.0, 1.0, 0.0, 0.0, 1.0;
-    engine.set_in_points(points.data(), points.rows());
+    engine.set_in_points(points.data(), static_cast<int>(points.rows()));
     engine.run(config);
 
     auto out_points = engine.get_out_points();
@@ -51,11 +51,11 @@ TEST_CASE("Quad", "[trianglelite]")
 
     Eigen::Matrix<Scalar, 4, 2, Eigen::RowMajor> points;
     points << 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0;
-    engine.set_in_points(points.data(), points.rows());
+    engine.set_in_points(points.data(), static_cast<int>(points.rows()));
 
     Eigen::Matrix<int, 4, 2, Eigen::RowMajor> segments;
     segments << 0, 1, 1, 2, 2, 3, 3, 0;
-    engine.set_in_segments(segments.data(), segments.rows());
+    engine.set_in_segments(segments.data(), static_cast<int>(segments.rows()));
 
     engine.run(config);
 
@@ -78,11 +78,11 @@ TEST_CASE("QuadWithHole", "[trianglelite][hole]")
 
     Eigen::Matrix<Scalar, 8, 2, Eigen::RowMajor> points;
     points << 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.2, 0.2, 0.2, 0.8, 0.8, 0.8, 0.8, 0.2;
-    engine.set_in_points(points.data(), points.rows());
+    engine.set_in_points(points.data(), static_cast<int>(points.rows()));
 
     Eigen::Matrix<int, 8, 2, Eigen::RowMajor> segments;
     segments << 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4;
-    engine.set_in_segments(segments.data(), segments.rows());
+    engine.set_in_segments(segments.data(), static_cast<int>(segments.rows()));
 
     engine.run(config);
 

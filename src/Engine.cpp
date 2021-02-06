@@ -473,7 +473,7 @@ void Engine::run(const Config& config)
     std::vector<Scalar> holes;
     if (config.auto_hole_detection) {
         holes = run_auto_hole_detection();
-        set_in_holes(holes.data(), holes.size() / 2);
+        set_in_holes(holes.data(), static_cast<Index>(holes.size() / 2));
     }
 
     // Cleanup to ensure repeated call does not leak memory.
