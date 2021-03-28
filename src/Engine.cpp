@@ -1,6 +1,6 @@
 #include <trianglelite/Engine.h>
 #ifdef WITH_MSHIO
-#include <MshIO/mshio.h>
+#include <mshio/mshio.h>
 #endif
 
 #include <array>
