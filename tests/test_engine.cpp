@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <trianglelite/trianglelite.h>
 
@@ -133,14 +134,14 @@ TEST_CASE("Marker", "[trianglelite][marker]")
         REQUIRE(num_out_point_markers == out_points.rows());
         for (size_t i = 0; i < num_out_point_markers; i++) {
             if (out_point_markers[i] == 4) {
-                REQUIRE(out_points(i, 0) == Approx(0));
-                REQUIRE(out_points(i, 1) == Approx(0));
+                REQUIRE_THAT(out_points(i, 0), Catch::Matchers::WithinAbs(0, 1e-6));
+                REQUIRE_THAT(out_points(i, 1), Catch::Matchers::WithinAbs(0, 1e-6));
             } else if (out_point_markers[i] == 5) {
-                REQUIRE(out_points(i, 0) == Approx(1));
-                REQUIRE(out_points(i, 1) == Approx(0));
+                REQUIRE_THAT(out_points(i, 0), Catch::Matchers::WithinAbs(1, 1e-6));
+                REQUIRE_THAT(out_points(i, 1), Catch::Matchers::WithinAbs(0, 1e-6));
             } else if (out_point_markers[i] == 6) {
-                REQUIRE(out_points(i, 0) == Approx(0));
-                REQUIRE(out_points(i, 1) == Approx(1));
+                REQUIRE_THAT(out_points(i, 0), Catch::Matchers::WithinAbs(0, 1e-6));
+                REQUIRE_THAT(out_points(i, 1), Catch::Matchers::WithinAbs(1, 1e-6));
             }
         }
     }
@@ -155,14 +156,14 @@ TEST_CASE("Marker", "[trianglelite][marker]")
             const Index v0 = out_edges(i, 0);
             const Index v1 = out_edges(i, 1);
             if (edge_markers[i] == 1) {
-                REQUIRE(out_points(v0, 1) == Approx(0.0));
-                REQUIRE(out_points(v1, 1) == Approx(0.0));
+                REQUIRE_THAT(out_points(v0, 1), Catch::Matchers::WithinAbs(0, 1e-6));
+                REQUIRE_THAT(out_points(v1, 1), Catch::Matchers::WithinAbs(0, 1e-6));
             } else if (edge_markers[i] == 2) {
-                REQUIRE(out_points.row(v0).sum() == Approx(1.0));
-                REQUIRE(out_points.row(v1).sum() == Approx(1.0));
+                REQUIRE_THAT(out_points.row(v0).sum(), Catch::Matchers::WithinAbs(1.0, 1e-6));
+                REQUIRE_THAT(out_points.row(v1).sum(), Catch::Matchers::WithinAbs(1.0, 1e-6));
             } else if (edge_markers[i] == 3) {
-                REQUIRE(out_points(v0, 0) == Approx(0.0));
-                REQUIRE(out_points(v1, 0) == Approx(0.0));
+                REQUIRE_THAT(out_points(v0, 0), Catch::Matchers::WithinAbs(0, 1e-6));
+                REQUIRE_THAT(out_points(v1, 0), Catch::Matchers::WithinAbs(0, 1e-6));
             } else {
                 REQUIRE(edge_markers[i] == 0);
             }
@@ -213,7 +214,8 @@ TEST_CASE("Debug Issue 2", "[trianglelite][issue]")
     trianglelite::Engine engine;
     engine.set_in_points(points.data(), points.size() / 2);
 
-    SECTION("Points only") {
+    SECTION("Points only")
+    {
         trianglelite::Config config;
         config.exact = false;
         config.verbose_level = 0;
@@ -227,7 +229,8 @@ TEST_CASE("Debug Issue 2", "[trianglelite][issue]")
         REQUIRE(out_triangles.rows() == 2);
     }
 
-    SECTION("Points and segments") {
+    SECTION("Points and segments")
+    {
         engine.set_in_segments(segments.data(), segments.size() / 2);
         trianglelite::Config config;
         config.exact = false;

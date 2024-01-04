@@ -50,8 +50,7 @@ if (TRIANGLELITE_UNIT_TESTS)
 
     file(GLOB TEST_FILES "${PROJECT_SOURCE_DIR}/tests/*.cpp")
     add_executable(trianglelite_test ${TEST_FILES})
-    target_link_libraries(trianglelite_test trianglelite::trianglelite Catch2::Catch2)
-    #target_compile_definitions(trianglelite_test PRIVATE -DCATCH_CONFIG_ENABLE_BENCHMARKING)
+    target_link_libraries(trianglelite_test trianglelite::trianglelite Catch2::Catch2WithMain)
     catch_discover_tests(trianglelite_test)
 endif()
 
