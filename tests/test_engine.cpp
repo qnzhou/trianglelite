@@ -126,11 +126,12 @@ TEST_CASE("Marker", "[trianglelite][marker]")
     REQUIRE(out_segments.rows() > 3);
     REQUIRE(out_triangles.rows() > 1);
 
-    SECTION("Point markers") {
+    SECTION("Point markers")
+    {
         auto out_point_markers = engine.get_out_point_markers();
         const size_t num_out_point_markers = out_point_markers.size();
         REQUIRE(num_out_point_markers == out_points.rows());
-        for (size_t i=0; i<num_out_point_markers; i++) {
+        for (size_t i = 0; i < num_out_point_markers; i++) {
             if (out_point_markers[i] == 4) {
                 REQUIRE(out_points(i, 0) == Approx(0));
                 REQUIRE(out_points(i, 1) == Approx(0));
@@ -144,12 +145,13 @@ TEST_CASE("Marker", "[trianglelite][marker]")
         }
     }
 
-    SECTION("Edge markers") {
+    SECTION("Edge markers")
+    {
         auto edge_markers = engine.get_out_edge_markers();
         REQUIRE(edge_markers.size() == out_edges.rows());
 
         const size_t num_edges = out_edges.rows();
-        for (size_t i=0; i<num_edges; i++) {
+        for (size_t i = 0; i < num_edges; i++) {
             const Index v0 = out_edges(i, 0);
             const Index v1 = out_edges(i, 1);
             if (edge_markers[i] == 1) {
@@ -167,8 +169,79 @@ TEST_CASE("Marker", "[trianglelite][marker]")
         }
     }
 
-    SECTION("Segment markers") {
+    SECTION("Segment markers")
+    {
         auto segment_markers = engine.get_out_segment_markers();
         REQUIRE(out_segments.rows() == segment_markers.size());
+    }
+}
+
+TEST_CASE("Debug Issue 1", "[trianglelite][issue]")
+{
+    using namespace trianglelite;
+
+    std::vector<Scalar> points{6.899643741648033,
+        10.556739733611963,
+        6.8743893086546723,
+        10.577559204153792,
+        6.8990280198173055,
+        10.557055643048765,
+        6.8994694525740767,
+        10.556817827203695,
+        6.8996252478389311,
+        10.556759464230709,
+        6.899537086138448,
+        10.5566972172105};
+    std::vector<int> segments{0, 1, 2, 3, 3, 4, 4, 3};
+
+    Engine engine;
+    Config config;
+    config.convex_hull = true;
+    config.split_boundary = false;
+    config.max_num_steiner = 0;
+    engine.set_in_points(points.data(), 6);
+    engine.set_in_segments(segments.data(), 4);
+    REQUIRE_THROWS(engine.run(config));
+}
+
+
+TEST_CASE("Debug Issue 2", "[trianglelite][issue]")
+{
+    std::vector<trianglelite::Scalar> points = {1, 0, 0, 1, 0, 0, 0.6, 0.6};
+    std::vector<int> segments = {0, 1, 1, 2, 2, 0};
+
+    trianglelite::Engine engine;
+    engine.set_in_points(points.data(), points.size() / 2);
+
+    SECTION("Points only") {
+        trianglelite::Config config;
+        config.exact = false;
+        config.verbose_level = 0;
+
+        engine.run(config);
+
+        const auto out_points = engine.get_out_points();
+        const auto out_triangles = engine.get_out_triangles();
+
+        REQUIRE(out_points.rows() == 4);
+        REQUIRE(out_triangles.rows() == 2);
+    }
+
+    SECTION("Points and segments") {
+        engine.set_in_segments(segments.data(), segments.size() / 2);
+        trianglelite::Config config;
+        config.exact = false;
+        config.verbose_level = 0;
+        config.convex_hull = true;
+        config.split_boundary = false;
+        config.max_num_steiner = 0;
+
+        engine.run(config);
+
+        const auto out_points = engine.get_out_points();
+        const auto out_triangles = engine.get_out_triangles();
+
+        REQUIRE(out_points.rows() == 4);
+        REQUIRE(out_triangles.rows() == 2);
     }
 }

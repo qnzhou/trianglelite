@@ -22,9 +22,9 @@
 static_assert(
     std::is_same<REAL, trianglelite::Scalar>::value, "Inconsistent Scalar types detected.");
 
-extern "C" {
+//extern "C" {
 #include <triangle.h>
-}
+//}
 
 using namespace trianglelite;
 

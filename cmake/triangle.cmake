@@ -3,8 +3,8 @@ include_guard()
 if (NOT TARGET triangle::triangle)
     FetchContent_Declare(
         triangle
-        GIT_REPOSITORY https://github.com/PyMesh/triangle.git
-        GIT_TAG        master
+        GIT_REPOSITORY https://github.com/libigl/triangle.git
+        GIT_TAG        6bbd92c7ddd6c803c403e005e1132eadb38fbe68
         GIT_SHALLOW TRUE
     )
 
