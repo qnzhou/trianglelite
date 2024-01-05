@@ -12,19 +12,12 @@
 #include <type_traits>
 #include <vector>
 
-#ifdef TRIANGLELITE_SINGLE
-#define REAL float
-#else
-#define REAL double
-#endif
 #define VOID void
 #define ANSI_DECLARATORS
-static_assert(
-    std::is_same<REAL, trianglelite::Scalar>::value, "Inconsistent Scalar types detected.");
-
-//extern "C" {
 #include <triangle.h>
-//}
+
+static_assert(
+    std::is_same<TRI_REAL, trianglelite::Scalar>::value, "Inconsistent Scalar types detected.");
 
 using namespace trianglelite;
 

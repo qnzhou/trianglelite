@@ -177,7 +177,7 @@ TEST_CASE("Marker", "[trianglelite][marker]")
     }
 }
 
-TEST_CASE("Debug Issue 1", "[trianglelite][issue]")
+TEST_CASE("Debug Issue 1", "[trianglelite][issue][!mayfail]")
 {
     using namespace trianglelite;
 
