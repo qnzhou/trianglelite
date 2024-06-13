@@ -4,7 +4,36 @@ TriangleLite is a lite wrapper of the [triangle library] written in C++.  It is 
 by Qingnan Zhou as a coding exercise to make using the triangle library less
 tedious.
 
-## Quick start
+## Quick start (Python)
+
+TriangleLite is available in python via pip:
+```sh
+pip install trianglelite
+```
+
+Here is a quick example of using TriangleLite in Python:
+
+```python
+import trianglelite
+
+# Triangulation configuration.
+config = trianglelite.Config()
+config.max_area = 0.1
+
+# Create triangulation engine and setting input.
+engine = trianglelite.Engine()
+engine.in_points = np.array(...)
+engine.in_segments = np.array(...)
+
+# Run triangulation.
+engine.run(config)
+
+# Extract output.
+out_points = engine.out_points
+out_triangles = engine.out_triangles
+```
+
+## Quick start (C++)
 
 ```c++
 #include <trianglelite/trianglelite.h>
