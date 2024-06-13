@@ -16,6 +16,7 @@ project(trianglelite)
 option(TRIANGLELITE_SINGLE "Use float instead of double" OFF)
 option(TRIANGLELITE_UNIT_TESTS "Build unit tests" OFF)
 option(TRIANGLELITE_MSHIO "Enable debug msh save" OFF)
+option(TRIANGLELITE_PYTHON "Build python bindings" OFF)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -65,5 +66,26 @@ if (SANITIZE_ADDRESS OR
     if (TRIANGLELITE_UNIT_TESTS)
         add_sanitizers(trianglelite_test)
     endif()
+endif()
+
+if (TRIANGLELITE_PYTHON)
+    if(SKBUILD)
+        if(APPLE)
+            set(CMAKE_INSTALL_RPATH @loader_path)
+        elseif(UNIX)
+            set(CMAKE_INSTALL_RPATH $ORIGIN)
+        endif()
+    endif()
+
+    include(nanobind)
+    include(fmt)
+    set(PY_SRC_FILE "${PROJECT_SOURCE_DIR}/python/pytrianglelite.cpp")
+    nanobind_add_module(pytrianglelite NB_STATIC ${PY_SRC_FILE})
+    target_compile_features(pytrianglelite PRIVATE cxx_std_17)
+    target_link_libraries(pytrianglelite PUBLIC trianglelite::trianglelite fmt::fmt)
+
+    install(TARGETS pytrianglelite LIBRARY
+        COMPONENT TriangleLite_Python_Runtime
+        DESTINATION ${SKBUILD_PLATLIB_DIR}/trianglelite)
 endif()
 
