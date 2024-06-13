@@ -1,6 +1,9 @@
 name: build and test
 
-on: [push]
+on:
+  push:
+    branches:
+      - '**'
 
 jobs:
   build-Ubuntu:
