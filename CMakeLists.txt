@@ -87,13 +87,11 @@ if (TRIANGLELITE_PYTHON)
 
     if (SKBUILD)
         nanobind_add_stub(pytrianglelite_stub
-            #INSTALL_TIME
             MODULE pytrianglelite
             OUTPUT ${SKBUILD_PLATLIB_DIR}/trianglelite/pytrianglelite.pyi
             DEPENDS pytrianglelite
             COMPONENT TriangleLite_Python_Runtime
-            PYTHON_PATH ${SKBUILD_PLATLIB_DIR}/trianglelite/
-            #PYTHON_PATH $<TARGET_FILE_DIR:pytrianglelite>
+            PYTHON_PATH $<TARGET_FILE_DIR:pytrianglelite>
             MARKER_FILE py.typed
             VERBOSE
         )
