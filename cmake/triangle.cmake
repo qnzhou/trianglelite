@@ -15,8 +15,9 @@ target_include_directories(triangle PUBLIC ${triangle_SOURCE_DIR})
 target_compile_definitions(triangle PRIVATE -DANSI_DECLARATORS)
 if (MSVC)
     target_compile_options(triangle PRIVATE
-        /wd4311  # Pointer truncation.
         /wd4244  # Flout convert to int will lose data.
+        /wd4302  # Truncation from 'type1' to 'type2'.
+        /wd4311  # Pointer truncation.
         /wd4312  # Assign 32bit int to 64bit int.
         /wd4996  # strcpy is deprecated.
         )
