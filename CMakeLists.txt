@@ -16,11 +16,13 @@ project(trianglelite)
 option(TRIANGLELITE_SINGLE "Use float instead of double" OFF)
 option(TRIANGLELITE_UNIT_TESTS "Build unit tests" OFF)
 option(TRIANGLELITE_MSHIO "Enable debug msh save" OFF)
+option(TRIANGLELITE_PYTHON "Build python bindings" OFF)
 
-include(FetchContent)
-include(cmake/Eigen3.cmake)
-include(cmake/triangle.cmake)
-include(cmake/sanitizer-cmake.cmake)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+include(Eigen3)
+include(triangle)
+include(sanitizer-cmake)
 
 file(GLOB INC_FILES "${PROJECT_SOURCE_DIR}/include/trianglelite/*.h")
 file(GLOB SRC_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
@@ -34,7 +36,7 @@ if (TRIANGLELITE_SINGLE)
     target_compile_definitions(triangle PUBLIC -DSINGLE)
 endif()
 if (TRIANGLELITE_MSHIO)
-    include(cmake/MshIO.cmake)
+    include(MshIO)
     target_compile_definitions(trianglelite PRIVATE -DWITH_MSHIO)
     target_link_libraries(trianglelite PRIVATE mshio::mshio)
 endif()
@@ -47,7 +49,7 @@ add_library(trianglelite::trianglelite ALIAS trianglelite)
 if (TRIANGLELITE_UNIT_TESTS)
     include(CTest)
     enable_testing()
-    include(cmake/Catch2.cmake)
+    include(Catch2)
 
     file(GLOB TEST_FILES "${PROJECT_SOURCE_DIR}/tests/*.cpp")
     add_executable(trianglelite_test ${TEST_FILES})
@@ -64,5 +66,40 @@ if (SANITIZE_ADDRESS OR
     if (TRIANGLELITE_UNIT_TESTS)
         add_sanitizers(trianglelite_test)
     endif()
+endif()
+
+if (TRIANGLELITE_PYTHON)
+    if(SKBUILD)
+        if(APPLE)
+            set(CMAKE_INSTALL_RPATH @loader_path)
+        elseif(UNIX)
+            set(CMAKE_INSTALL_RPATH $ORIGIN)
+        endif()
+    endif()
+
+    include(nanobind)
+    include(fmt)
+    set(PY_SRC_FILE "${PROJECT_SOURCE_DIR}/python/pytrianglelite.cpp")
+    nanobind_add_module(pytrianglelite NB_STATIC ${PY_SRC_FILE})
+    target_compile_features(pytrianglelite PRIVATE cxx_std_17)
+    target_link_libraries(pytrianglelite PUBLIC trianglelite::trianglelite fmt::fmt)
+
+    if (SKBUILD)
+        nanobind_add_stub(pytrianglelite_stub
+            #INSTALL_TIME
+            MODULE pytrianglelite
+            OUTPUT ${SKBUILD_PLATLIB_DIR}/trianglelite/pytrianglelite.pyi
+            DEPENDS pytrianglelite
+            COMPONENT TriangleLite_Python_Runtime
+            PYTHON_PATH ${SKBUILD_PLATLIB_DIR}/trianglelite/
+            #PYTHON_PATH $<TARGET_FILE_DIR:pytrianglelite>
+            MARKER_FILE py.typed
+            VERBOSE
+        )
+    endif()
+
+    install(TARGETS pytrianglelite LIBRARY
+        COMPONENT TriangleLite_Python_Runtime
+        DESTINATION ${SKBUILD_PLATLIB_DIR}/trianglelite)
 endif()
 
