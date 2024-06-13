@@ -84,6 +84,20 @@ if (TRIANGLELITE_PYTHON)
     target_compile_features(pytrianglelite PRIVATE cxx_std_17)
     target_link_libraries(pytrianglelite PUBLIC trianglelite::trianglelite fmt::fmt)
 
+    if (SKBUILD)
+        nanobind_add_stub(pytrianglelite_stub
+            #INSTALL_TIME
+            MODULE pytrianglelite
+            OUTPUT ${SKBUILD_PLATLIB_DIR}/trianglelite/pytrianglelite.pyi
+            DEPENDS pytrianglelite
+            COMPONENT TriangleLite_Python_Runtime
+            PYTHON_PATH ${SKBUILD_PLATLIB_DIR}/trianglelite/
+            #PYTHON_PATH $<TARGET_FILE_DIR:pytrianglelite>
+            MARKER_FILE py.typed
+            VERBOSE
+        )
+    endif()
+
     install(TARGETS pytrianglelite LIBRARY
         COMPONENT TriangleLite_Python_Runtime
         DESTINATION ${SKBUILD_PLATLIB_DIR}/trianglelite)

@@ -3,6 +3,7 @@ build-backend = "setuptools.build_meta"
 [build-system]
 requires = [
     "scikit-build-core~=0.9.1",
+    "typing-extensions~=4.1",
 ]
 build-backend = "scikit_build_core.build"
 
