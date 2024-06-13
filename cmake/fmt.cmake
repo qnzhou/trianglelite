@@ -12,3 +12,4 @@ CPMAddPackage(
 )
 
 set_target_properties(fmt PROPERTIES FOLDER third_party)
+set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE ON)
